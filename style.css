@@ -78,6 +78,7 @@ header p {
 
 .popup-content {
     background-color: rgba(30, 30, 30, 0.75); /* Dark frosted glass */
+    backdrop-filter: blur(10px);
     padding: 25px 30px;
     border-radius: 12px; /* More rounded */
     border: 1px solid rgba(255, 255, 255, 0.1);
