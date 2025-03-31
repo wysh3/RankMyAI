@@ -11,6 +11,7 @@ A simple web application for creating and sharing tier lists of AI models. Drag 
 *   **Persistent Storage:** Your tier list layout and custom models are saved in your browser's local storage.
 *   **Reset:** Reset the list back to the initial default models and clear tiers.
 *   **Share:** Generate a shareable link that encodes your current tier list state (layout and models).
+*   **Hidden "RankMyAnything" Mode:** Hold the `Alt` key and click the header ("RankMyAI") or the "Reset" button to switch to a generic mode. This clears all items and changes the title/description, allowing you to rank anything. Performing a normal reset reverts back to the default AI mode.
 
 ## Inspiration
 

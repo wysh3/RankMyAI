@@ -25,6 +25,11 @@ document.addEventListener('DOMContentLoaded', () => {
         // xAI
         { id: 'grok-3', name: 'grok 3', group: 'xAI' }
     ];
+    const defaultTitleHTML = `<img src="images/favicon.png" alt="Logo" style="height: 1em; vertical-align: middle; margin-right: 0.3em;">RankMyAI`;
+    const defaultDescription = "Drag and drop AI models to rank them in different tiers";
+    const anythingTitleHTML = `<img src="images/favicon.png" alt="Logo" style="height: 1em; vertical-align: middle; margin-right: 0.3em;">RankMyAnything`;
+    const anythingDescription = "Drag and drop anything to rank them in different tiers";
+
 
     // --- Constants ---
     const LOGO_URLS = { // Using local paths now
@@ -38,6 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const CUSTOM_PLACEHOLDER_URL = 'images/placeholder-icon.png'; // Updated placeholder path
     const MODELS_STORAGE_KEY = 'tierListModelsState'; // Stores array of all model objects
     const LAYOUT_STORAGE_KEY = 'tierListLayoutState'; // Stores { tier: [id1, id2], ... }
+    const MODE_STORAGE_KEY = 'tierListModeState'; // Stores boolean for isRankAnythingMode
 
     // --- DOM Elements ---
     const unrankedContainer = document.getElementById('unranked-container');
@@ -61,12 +67,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const customConfirmMessage = document.getElementById('custom-confirm-message');
     const customConfirmYesBtn = document.getElementById('custom-confirm-yes-btn');
     const customConfirmNoBtn = document.getElementById('custom-confirm-no-btn');
+    const headerElement = document.querySelector('header'); // Added
+    const headerTitleLink = document.querySelector('header h1 a'); // Added
+    const headerDescription = document.querySelector('header p'); // Added
 
 
     // --- State Variables ---
     let appState = { // Unified state object
         models: [], // Holds the current state of ALL models (default + custom + edits)
-        layout: {}  // Holds tier -> [model IDs] mapping
+        layout: {},  // Holds tier -> [model IDs] mapping
+        isRankAnythingMode: false // NEW: Track the mode
     };
     let editingModelId = null; // Track ID of model being edited/deleted
     let draggedItem = null;
@@ -112,11 +122,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 const decodedJson = atob(stateParam); // Decode Base64
                 const loadedState = JSON.parse(decodedJson);
 
-                // Basic validation
-                if (loadedState && Array.isArray(loadedState.models) && typeof loadedState.layout === 'object') {
+                // Basic validation - Check for models, layout, and the mode flag
+                if (loadedState && Array.isArray(loadedState.models) && typeof loadedState.layout === 'object' && typeof loadedState.isRankAnythingMode === 'boolean') {
+                    // Set appState directly from URL state
+                    appState.models = loadedState.models;
+                    appState.layout = loadedState.layout;
+                    appState.isRankAnythingMode = loadedState.isRankAnythingMode;
+
                     // Overwrite localStorage with the state from the URL
-                    localStorage.setItem(MODELS_STORAGE_KEY, JSON.stringify(loadedState.models));
-                    localStorage.setItem(LAYOUT_STORAGE_KEY, JSON.stringify(loadedState.layout));
+                    localStorage.setItem(MODELS_STORAGE_KEY, JSON.stringify(appState.models));
+                    localStorage.setItem(LAYOUT_STORAGE_KEY, JSON.stringify(appState.layout));
+                    localStorage.setItem(MODE_STORAGE_KEY, JSON.stringify(appState.isRankAnythingMode));
                     console.log("Loaded state from URL parameter.");
                     // Remove the state parameter from the URL visually without reloading
                     window.history.replaceState({}, document.title, window.location.pathname);
@@ -134,49 +150,69 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    function loadAppState() {
+    function loadAppStateFromLocalStorage() {
         const savedModelsJson = localStorage.getItem(MODELS_STORAGE_KEY);
         const savedLayoutJson = localStorage.getItem(LAYOUT_STORAGE_KEY);
+        const savedModeJson = localStorage.getItem(MODE_STORAGE_KEY); // Load mode flag
+
         let loadedModels = [];
         let loadedLayout = {};
+        let loadedMode = false; // Default to RankMyAI mode
 
+        // Load Mode first
+        if (savedModeJson) {
+            try {
+                loadedMode = JSON.parse(savedModeJson);
+                if (typeof loadedMode !== 'boolean') {
+                    loadedMode = false; // Default on invalid type
+                }
+            } catch (e) {
+                console.error("Error parsing saved mode from localStorage:", e);
+                loadedMode = false;
+            }
+        }
+        appState.isRankAnythingMode = loadedMode; // Set state flag
+
+        // Load Models
         if (savedModelsJson) {
             try {
                 loadedModels = JSON.parse(savedModelsJson);
-                // Basic validation: ensure it's an array
                 if (!Array.isArray(loadedModels)) {
                     console.warn("Invalid models data in localStorage, resetting.");
                     loadedModels = [];
                 }
             } catch (e) {
                 console.error("Error parsing saved models from localStorage:", e);
-                loadedModels = []; // Reset on error
+                loadedModels = [];
             }
         }
 
-        // If no valid saved models, initialize with defaults
-        if (loadedModels.length === 0) {
-            // Deep copy initial defaults to prevent modification
+        // If no valid saved models AND we are in RankMyAI mode, initialize with defaults
+        if (loadedModels.length === 0 && !appState.isRankAnythingMode) {
             loadedModels = JSON.parse(JSON.stringify(initialDefaultModels));
             console.log("Initialized with default models.");
         }
+        // If we are in RankAnything mode, models should remain empty unless loaded
 
+        // Load Layout
         if (savedLayoutJson) {
             try {
                 loadedLayout = JSON.parse(savedLayoutJson);
-                // Basic validation: ensure it's an object
                 if (typeof loadedLayout !== 'object' || loadedLayout === null) {
                     console.warn("Invalid layout data in localStorage, resetting.");
                     loadedLayout = {};
                 }
             } catch (e) {
                 console.error("Error parsing saved layout from localStorage:", e);
-                loadedLayout = {}; // Reset on error
+                loadedLayout = {};
             }
         }
 
         appState.models = loadedModels;
         appState.layout = loadedLayout;
+
+        // Update UI based on loaded mode AFTER loading state
+        updateHeaderBasedOnMode();
     }
 
     function saveAppState() {
@@ -186,22 +222,38 @@ document.addEventListener('DOMContentLoaded', () => {
             const tier = zone.getAttribute('data-tier');
             const modelIds = Array.from(zone.querySelectorAll('.model-card:not(.add-card)')) // Exclude add button
                                  .map(card => card.getAttribute('data-id'));
-            if (tier) {
+            if (tier && modelIds.length > 0) { // Only include tiers with models
                 currentLayout[tier] = modelIds;
             }
         });
-        appState.layout = currentLayout;
+        appState.layout = currentLayout; // Always update layout from DOM before saving
 
-        // 2. Save the current models array and the updated layout
+
+        // 2. Save the current models array, the updated layout, and the mode flag
         try {
             localStorage.setItem(MODELS_STORAGE_KEY, JSON.stringify(appState.models));
             localStorage.setItem(LAYOUT_STORAGE_KEY, JSON.stringify(appState.layout));
-            // console.log("App state saved."); // For debugging
+            localStorage.setItem(MODE_STORAGE_KEY, JSON.stringify(appState.isRankAnythingMode)); // Save mode flag
+            // console.log("App state saved:", appState); // For debugging
         } catch (e) {
             console.error("Error saving app state to localStorage:", e);
             showCustomAlert("Error saving state. Changes might not persist."); // Use custom alert
         }
     }
+
+    // --- UI Update Function ---
+    function updateHeaderBasedOnMode() {
+        if (appState.isRankAnythingMode) {
+            if (headerTitleLink) headerTitleLink.innerHTML = anythingTitleHTML;
+            if (headerDescription) headerDescription.textContent = anythingDescription;
+            document.title = "RankMyAnything"; // Update page title
+        } else {
+            if (headerTitleLink) headerTitleLink.innerHTML = defaultTitleHTML;
+            if (headerDescription) headerDescription.textContent = defaultDescription;
+            document.title = "RankMyAI"; // Update page title
+        }
+    }
+
 
     // --- Card Creation & Updates ---
 
@@ -314,23 +366,20 @@ document.addEventListener('DOMContentLoaded', () => {
             const targetZone = document.querySelector(`.drop-zone[data-tier="${tier}"]`);
             if (targetZone) {
                 appState.layout[tier].forEach(modelId => {
-                    const card = unrankedContainer.querySelector(`.model-card[data-id="${modelId}"]`); // Find in unranked
+                    // Find card anywhere in the document (might be in unranked or another tier already)
+                    const card = document.querySelector(`.model-card[data-id="${modelId}"]`);
                     if (card) {
                         targetZone.appendChild(card); // Move to correct tier
                     } else {
-                        // Card might already be in another tier (e.g., if layout inconsistent), log warning
-                        // Or the model might not exist anymore if state is corrupt/old
-                        if (!document.querySelector(`.model-card[data-id="${modelId}"]`)) {
-                             console.warn(`Model card with ID ${modelId} not found during layout application.`);
-                        }
+                         console.warn(`Model card with ID ${modelId} not found during layout application.`);
                     }
                 });
             } else {
                 console.warn(`Target zone for tier ${tier} not found during layout application.`);
             }
         }
-        // Any cards remaining in unrankedContainer are correctly placed there
-        ensureAddCardIsLast(); // Ensure '+' is last after applying layout
+        // Ensure add card is last in unranked after applying layout
+        ensureAddCardIsLast();
     }
 
 
@@ -342,11 +391,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const isCustomModel = editMode && model && model.id.startsWith('custom-');
         const isDefaultModel = editMode && model && !isCustomModel;
 
+        // Adjust modal title based on mode
+        const itemTerm = appState.isRankAnythingMode ? 'Item' : 'Model';
         if (editMode) {
-            modalTitle.textContent = isCustomModel ? 'Edit Custom Model' : 'Edit Default Model';
+            modalTitle.textContent = isCustomModel ? `Edit Custom ${itemTerm}` : `Edit Default ${itemTerm}`;
         } else {
-            modalTitle.textContent = 'Add Custom Model';
+            modalTitle.textContent = `Add Custom ${itemTerm}`;
         }
+        modelNameInput.labels[0].textContent = `${itemTerm} Name:`; // Update label
+
 
         modelNameInput.value = editMode ? model.name : '';
         modelImageUrlInput.value = editMode ? (model.logoUrl || '') : '';
@@ -365,9 +418,10 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleSaveModel() {
         const name = modelNameInput.value.trim();
         const imageUrl = modelImageUrlInput.value.trim();
+        const itemTerm = appState.isRankAnythingMode ? 'Item' : 'Model'; // Get current term
 
         if (!name) {
-            showCustomAlert('Model name is required.'); // Use custom alert
+            showCustomAlert(`${itemTerm} name is required.`); // Use term
             modelNameInput.focus();
             return;
         }
@@ -392,7 +446,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     console.error("Could not find card in DOM to update with ID:", editingModelId);
                 }
-                saveAppState(); // Save the entire state (models + layout)
+                saveAppState(); // Save the entire state (models + layout + mode)
             } else {
                 console.error("Could not find model in appState to edit with ID:", editingModelId);
             }
@@ -407,7 +461,7 @@ document.addEventListener('DOMContentLoaded', () => {
             appState.models.push(newModel); // Add to the main state array
             const newCard = createModelCard(newModel);
             unrankedContainer.insertBefore(newCard, addModelButton); // Add visually
-            saveAppState(); // Save the entire state
+            saveAppState(); // Save the entire state (models + layout + mode)
             ensureAddCardIsLast(); // Ensure '+' is last after adding
         }
 
@@ -439,7 +493,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error("Could not find card to remove with ID:", editingModelId);
         }
 
-        saveAppState(); // Save the updated state
+        saveAppState(); // Save the updated state (models + layout + mode)
         ensureAddCardIsLast(); // Ensure '+' is last after deleting (if deleted from unranked)
         hideModal();
     }
@@ -491,27 +545,45 @@ document.addEventListener('DOMContentLoaded', () => {
                     zone.appendChild(draggedItem);
                 }
                 dropSuccessful = true; // Mark drop as successful
-                saveAppState(); // Save state after successful drop
+                saveAppState(); // Save state after successful drop (models + layout + mode)
                 ensureAddCardIsLast(); // Ensure '+' is last after any drop
             }
         });
     });
 
     // --- Reset Button ---
-    resetButton.addEventListener('click', async () => { // Make listener async
-        const confirmed = await showCustomConfirm("Are you sure you want to reset? This will remove all custom models and reset tiers."); // Use custom confirm
+    resetButton.addEventListener('click', async (event) => { // Make listener async and receive event
+        // Check for Alt key first
+        if (event.altKey) {
+            handleAltReset(); // Call the specific Alt+Reset handler
+            return; // Stop further execution for this click
+        }
+
+        // --- Normal Reset Logic (Corrected) ---
+        const confirmed = await showCustomConfirm("Are you sure you want to reset? This will restore default AI models and reset tiers.");
         if (confirmed) {
-            // Clear saved state
+            // 1. Set mode to RankMyAI
+            appState.isRankAnythingMode = false;
+
+            // 2. Clear ALL relevant localStorage
             localStorage.removeItem(MODELS_STORAGE_KEY);
             localStorage.removeItem(LAYOUT_STORAGE_KEY);
+            localStorage.removeItem(MODE_STORAGE_KEY);
 
-            // Reload state (which will now use defaults)
-            loadAppState();
+            // 3. Directly load defaults into state
+            appState.models = JSON.parse(JSON.stringify(initialDefaultModels));
+            appState.layout = {}; // Reset layout
 
-            // Repopulate UI
-            populateModels();
-            // No layout to apply as it was cleared
-            console.log("Tier list reset to defaults.");
+            // 4. Update Header UI
+            updateHeaderBasedOnMode();
+
+            // 5. Repopulate DOM
+            populateModels(); // Clears old cards and adds defaults to unranked
+
+            // 6. Save the restored default state
+            saveAppState();
+
+            console.log("Tier list reset to default RankMyAI state.");
         }
     });
 
@@ -527,10 +599,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Share Button Listener ---
     shareButton.addEventListener('click', () => {
         try {
-            // Ensure the layout in appState is up-to-date before sharing
-            saveAppState(); // This updates appState.layout based on DOM
+            // Ensure the layout and mode in appState are up-to-date before sharing
+            saveAppState(); // This updates appState.layout based on DOM and saves mode
 
-            const stateString = JSON.stringify(appState);
+            const stateString = JSON.stringify(appState); // Includes models, layout, and mode
             const encodedState = btoa(stateString); // Base64 encode
 
             // Construct URL (remove existing query string/hash first)
@@ -552,11 +624,53 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // --- Alt+Click Reset Function ---
+    async function handleAltReset() {
+        const confirmed = await showCustomConfirm("Switch to 'RankMyAnything' mode? This clears all items and cannot be undone (except by normal reset).");
+        if (confirmed) {
+            // 1. Set mode to RankMyAnything
+            appState.isRankAnythingMode = true;
+
+            // 2. Remove all model cards (except add button) from DOM
+            unrankedContainer.querySelectorAll('.model-card:not(.add-card)').forEach(card => card.remove());
+            document.querySelectorAll('.tier-models').forEach(tierZone => {
+                tierZone.innerHTML = ''; // Clear tiered zones too
+            });
+
+            // 3. Update Header Text via helper
+            updateHeaderBasedOnMode();
+
+            // 4. Clear State models and layout
+            appState.models = [];
+            appState.layout = {};
+
+            // 5. Save the empty state AND the mode flag
+            saveAppState();
+
+            console.log("Tier list cleared and switched to 'RankMyAnything' mode.");
+            ensureAddCardIsLast(); // Ensure '+' button is still there and last
+        }
+    }
+
+    // --- Alt+Click Listeners ---
+    headerElement.addEventListener('click', (event) => {
+        // Trigger only if clicking directly on H1/A or P, not buttons inside header
+        if (event.altKey && (event.target.tagName === 'P' || event.target.closest('h1 a'))) {
+            event.preventDefault(); // Prevent link navigation if alt+clicking the H1 link
+            handleAltReset();
+        }
+    });
+    // Note: Alt+Click for reset button is handled within its existing listener
+
 
     // --- Initial Load ---
-    loadStateFromUrl(); // Try loading from URL first
-    loadAppState();     // Then load from localStorage (might be overwritten by URL state)
-    populateModels();
-    applyLayout();
+    const loadedFromUrl = loadStateFromUrl(); // Try loading from URL first
+    if (!loadedFromUrl) {
+        loadAppStateFromLocalStorage(); // If not loaded from URL, load from localStorage
+    }
+    // State (including mode) is now set either from URL or localStorage (with defaults if needed)
+    updateHeaderBasedOnMode(); // Ensure header matches the loaded state
+    populateModels(); // Populate based on whatever state was loaded
+    applyLayout();    // Apply layout based on whatever state was loaded
 
 }); // End DOMContentLoaded
