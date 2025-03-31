@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Model Tier List Maker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <h1>AI Model Tier List Maker</h1>
+            <p>Drag and drop AI models to rank them in different tiers</p>
+            <div class="controls">
+                <button id="reset-btn" type="button">Reset</button>
+                <button id="share-btn" type="button">Share</button>
+            </div>
+        </header>
+
+        <main class="tier-area">
+            <div class="tiers">
+                <div class="tier tier-s" id="tier-s">
+                    <span class="tier-label">S</span>
+                    <div class="tier-models drop-zone" data-tier="S"></div>
+                </div>
+                <div class="tier tier-a" id="tier-a">
+                    <span class="tier-label">A</span>
+                    <div class="tier-models drop-zone" data-tier="A"></div>
+                </div>
+                <div class="tier tier-b" id="tier-b">
+                    <span class="tier-label">B</span>
+                    <div class="tier-models drop-zone" data-tier="B"></div>
+                </div>
+                <div class="tier tier-c" id="tier-c">
+                    <span class="tier-label">C</span>
+                    <div class="tier-models drop-zone" data-tier="C"></div>
+                </div>
+                <div class="tier tier-d" id="tier-d">
+                    <span class="tier-label">D</span>
+                    <div class="tier-models drop-zone" data-tier="D"></div>
+                </div>
+                <div class="tier tier-e" id="tier-e">
+                    <span class="tier-label">E</span>
+                    <div class="tier-models drop-zone" data-tier="E"></div>
+                </div>
+                <div class="tier tier-f" id="tier-f">
+                    <span class="tier-label">F</span>
+                    <div class="tier-models drop-zone" data-tier="F"></div>
+                </div>
+            </div>
+
+            <div class="unranked-models">
+                <div id="unranked-container" class="drop-zone" data-tier="unranked">
+                    <!-- Model cards will be populated here by JavaScript -->
+                    <!-- Add Button -->
+                    <div class="add-card" id="add-model-btn">
+                        <span class="add-icon">+</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Structure (Hidden by default) -->
+    <div id="add-model-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <h2>Add Custom Model</h2>
+            <label for="model-name-input">Model Name:</label>
+            <input type="text" id="model-name-input" required>
+
+            <label for="model-image-url-input">Image URL (optional):</label>
+            <input type="url" id="model-image-url-input" placeholder="e.g., from uxwing.com">
+            <small>Find logos at sites like uxwing.com</small>
+
+            <div class="modal-actions">
+                <button id="delete-model-btn" type="button" style="display: none;">Delete</button> <!-- Inline margin removed -->
+                <button id="save-model-btn" type="button">Save</button>
+                <button id="cancel-modal-btn" type="button">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+
+    <!-- Custom Alert Popup -->
+    <div id="custom-alert-overlay" class="popup-overlay" style="display: none;">
+        <div class="popup-content">
+            <p id="custom-alert-message"></p>
+            <button id="custom-alert-ok-btn" type="button">OK</button>
+        </div>
+    </div>
+
+    <!-- Custom Confirm Popup -->
+    <div id="custom-confirm-overlay" class="popup-overlay" style="display: none;">
+        <div class="popup-content">
+            <p id="custom-confirm-message"></p>
+            <div class="popup-buttons">
+                <button id="custom-confirm-yes-btn" type="button">Yes</button>
+                <button id="custom-confirm-no-btn" type="button">No</button>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

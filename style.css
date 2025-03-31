@@ -1,0 +1,451 @@
+/* Global Styles & Theme */
+body {
+    background-color: #000; /* Pure black background */
+    color: #fff; /* White text */
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    margin: 0;
+    padding: 20px;
+    line-height: 1.6;
+    min-height: 100vh; /* Ensure background covers full height */
+    box-sizing: border-box;
+}
+
+/*------------------------------------*\
+    #APP CONTAINER & HEADER
+\*------------------------------------*/
+
+.app-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Header & Controls */
+header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+header h1 {
+    margin-bottom: 5px;
+    font-weight: 600; /* Slightly less bold */
+    font-size: 2.4em; /* Slightly larger */
+    color: #eee; /* Slightly off-white */
+}
+
+header p {
+    color: #aaa; /* Lighter grey description */
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.controls button {
+    background-color: rgba(50, 50, 50, 0.7); /* Dark frosted glass */
+    backdrop-filter: blur(5px);
+    color: #eee;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 8px 15px;
+    margin: 0 5px;
+    border-radius: 6px; /* Slightly more rounded */
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.controls button:hover {
+    background-color: rgba(70, 70, 70, 0.8);
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+
+/*------------------------------------*\
+    #CUSTOM POPUPS (ALERT/CONFIRM)
+\*------------------------------------*/
+
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Darker overlay */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(8px); /* Stronger blur for overlay */
+}
+
+.popup-content {
+    background-color: rgba(30, 30, 30, 0.75); /* Dark frosted glass */
+    backdrop-filter: blur(10px);
+    padding: 25px 30px;
+    border-radius: 12px; /* More rounded */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    min-width: 300px;
+    max-width: 90%;
+    color: #eee; /* Light text */
+}
+
+.popup-content p {
+    margin-bottom: 20px;
+    font-size: 1.1em;
+    color: #ddd; /* Slightly dimmer text */
+}
+
+.popup-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.popup-content button {
+    padding: 10px 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 500;
+    transition: background-color 0.2s ease, transform 0.1s ease, border-color 0.2s ease;
+    background-color: rgba(60, 60, 60, 0.7); /* Default button look */
+    color: #eee;
+}
+
+.popup-content button:hover {
+    background-color: rgba(80, 80, 80, 0.8);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.popup-content button:active {
+    transform: scale(0.98);
+}
+
+/* Specific button styles - Minimalist */
+#custom-alert-ok-btn,
+#custom-confirm-yes-btn {
+    /* Keep default style or slightly emphasize */
+     background-color: rgba(80, 80, 80, 0.8); /* Slightly lighter */
+}
+#custom-alert-ok-btn:hover,
+#custom-confirm-yes-btn:hover {
+    background-color: rgba(100, 100, 100, 0.9);
+}
+
+#custom-confirm-no-btn {
+    background-color: rgba(40, 40, 40, 0.7); /* Darker */
+}
+#custom-confirm-no-btn:hover {
+    background-color: rgba(60, 60, 60, 0.8);
+}
+
+
+/*------------------------------------*\
+    #MAIN LAYOUT & TIERS
+\*------------------------------------*/
+
+/* Main Layout */
+.tier-area {
+    display: flex;
+    gap: 30px;
+}
+
+.tiers {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.unranked-models {
+    flex: 0 0 310px;
+    display: flex;
+    flex-direction: column;
+}
+
+.unranked-models h2 {
+    text-align: center;
+    margin-bottom: 10px;
+    font-weight: 500;
+    color: #bbb; /* Lighter grey */
+}
+
+/* Tier Styling */
+.tier {
+    display: flex;
+    align-items: stretch;
+}
+
+.tier-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    font-weight: bold;
+    color: #fff; /* Default white text */
+    /* background-color removed - handled by specific tiers */
+    /* backdrop-filter removed */
+    border: 1px solid rgba(255, 255, 255, 0.1); /* Keep subtle border */
+    border-right: none;
+    border-radius: 6px 0 0 6px;
+    flex-shrink: 0;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); /* Restore subtle shadow */
+}
+
+/* Restore original Tier Label Colors */
+.tier-s .tier-label { background-color: #ff7f7f; color: #333; text-shadow: none; } /* Red */
+.tier-a .tier-label { background-color: #ffbf7f; color: #333; text-shadow: none; } /* Orange */
+.tier-b .tier-label { background-color: #ffff7f; color: #333; text-shadow: none; } /* Yellow */
+.tier-c .tier-label { background-color: #7fff7f; color: #333; text-shadow: none; } /* Green */
+.tier-d .tier-label { background-color: #7fbfff; color: #333; text-shadow: none; } /* Blue */
+.tier-e .tier-label { background-color: #bf7fff; color: #333; text-shadow: none; } /* Purple */
+.tier-f .tier-label { background-color: #aaaaaa; color: #333; text-shadow: none; } /* Grey */
+
+/* Note: The selector is now e.g. `.tier-s .tier-label` to target the label within the tier div */
+
+/* Drop Zones (Tier Models & Unranked Container) */
+.tier-models,
+#unranked-container {
+    flex-grow: 1;
+    background-color: rgba(25, 25, 25, 0.65); /* Darker frosted glass base */
+    backdrop-filter: blur(10px); /* Stronger blur */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0 6px 6px 0; /* Match tier label */
+    padding: 10px;
+    min-height: 70px; /* Slightly taller */
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-content: flex-start;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+#unranked-container {
+    border-radius: 6px; /* Consistent radius */
+    min-height: 300px;
+    flex-grow: 1;
+    background-color: rgba(20, 20, 20, 0.7); /* Slightly different shade for distinction */
+}
+
+
+/*------------------------------------*\
+    #MODEL CARDS & ADD BUTTON
+\*------------------------------------*/
+
+/* Model Card Styling */
+.model-card {
+    background-color: rgba(55, 55, 55, 0.75); /* Medium-dark frosted glass */
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #eee; /* Light text */
+    padding: 8px 12px;
+    border-radius: 5px; /* Slightly less rounded than containers */
+    cursor: grab;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease, background-color 0.2s ease;
+    font-size: 0.9em;
+    text-align: center;
+    width: 90px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 65px; /* Match tier min-height adjustment */
+    padding-top: 10px;
+    box-sizing: border-box;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+}
+
+.model-logo {
+    max-width: 35px;
+    max-height: 35px;
+    margin-bottom: 5px;
+    object-fit: contain;
+    filter: drop-shadow(0 1px 1px rgba(0,0,0,0.3)); /* Subtle logo shadow */
+}
+
+.model-name {
+    font-size: 0.85em;
+    font-weight: 500;
+    word-break: break-word;
+    color: #ddd;
+}
+
+.model-card:active {
+    cursor: grabbing;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    transform: scale(1.05);
+    background-color: rgba(75, 75, 75, 0.85); /* Slightly lighter when grabbed */
+}
+
+/* Add Card Styling */
+.add-card {
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-size: 0.9em;
+    text-align: center;
+    width: 90px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 75px;
+    padding-top: 0px;
+    box-sizing: border-box;
+    cursor: pointer;
+    border: 1px dashed rgba(255, 255, 255, 0.3); /* Dashed white border */
+    background: transparent;
+    backdrop-filter: none;
+    color: #aaa; /* Grey text/icon */
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.add-card:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.5);
+    color: #fff;
+}
+
+.add-icon {
+    font-size: 2.5em;
+    font-weight: 300;
+    color: inherit; /* Inherit color from .add-card */
+    line-height: 1;
+    margin: 0;
+}
+
+
+/*------------------------------------*\
+    #DRAG & DROP FEEDBACK
+\*------------------------------------*/
+
+.dragging {
+    opacity: 0.4;
+    box-shadow: none;
+}
+
+.drag-over {
+    border-style: solid; /* Solid border on hover */
+    border-color: rgba(255, 255, 255, 0.3);
+    background-color: rgba(255, 255, 255, 0.05); /* Subtle background highlight */
+}
+
+
+/*------------------------------------*\
+    #MODAL (ADD/EDIT MODEL)
+\*------------------------------------*/
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); /* Consistent overlay */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(8px); /* Consistent blur */
+}
+
+.modal-content {
+    background-color: rgba(35, 35, 35, 0.8); /* Dark frosted glass */
+    backdrop-filter: blur(12px);
+    padding: 30px;
+    border-radius: 12px; /* Consistent rounded corners */
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+    color: #eee; /* Light text */
+}
+
+.modal-content h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    text-align: center;
+    font-weight: 600;
+    color: #fff; /* Pure white heading */
+}
+
+.modal-content label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #bbb; /* Lighter grey label */
+}
+
+.modal-content input[type="text"],
+.modal-content input[type="url"] {
+    width: 100%;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background-color: rgba(10, 10, 10, 0.7); /* Very dark input background */
+    color: #eee;
+    border-radius: 6px;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.modal-content input[type="text"]:focus,
+.modal-content input[type="url"]:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.3);
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+.modal-content small {
+    display: block;
+    margin-bottom: 20px;
+    color: #888; /* Darker grey hint text */
+    font-size: 0.8em;
+}
+
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.modal-actions button {
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+#save-model-btn {
+    background-color: rgba(70, 130, 220, 0.7); /* Subtle blue accent */
+    color: white;
+    border-color: rgba(70, 130, 220, 0.5);
+}
+#save-model-btn:hover {
+    background-color: rgba(80, 140, 230, 0.8);
+    border-color: rgba(80, 140, 230, 0.6);
+}
+
+
+#cancel-modal-btn {
+    background-color: rgba(80, 80, 80, 0.7);
+    color: #eee;
+    border-color: rgba(255, 255, 255, 0.15);
+}
+#cancel-modal-btn:hover {
+    background-color: rgba(100, 100, 100, 0.8);
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+#delete-model-btn {
+    margin-right: auto; /* Pushes it to the left */
+    background-color: rgba(220, 53, 69, 0.7); /* Subtle red */
+    color: white;
+    border-color: rgba(220, 53, 69, 0.5);
+}
+#delete-model-btn:hover {
+    background-color: rgba(220, 53, 69, 0.85);
+    border-color: rgba(220, 53, 69, 0.6);
+}
