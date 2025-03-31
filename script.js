@@ -27,14 +27,15 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     // --- Constants ---
-    const LOGO_URLS = {
-        'OpenAI': 'https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/chatgpt-icon.png',
-        'Anthropic': 'https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/claude-ai-icon.png',
-        'Google': 'https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/google-gemini-icon.png',
-        'DeepSeek': 'https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/deepseek-logo-icon.png',
-        'xAI': 'https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/grok-icon.png'
+    const LOGO_URLS = { // Using local paths now
+        'OpenAI': 'images/openai-icon.png',
+        'Anthropic': 'images/claude-ai-icon.png',
+        'Google': 'images/google-gemini-icon.png',
+        'DeepSeek': 'images/deepseek-logo-icon.png',
+        'xAI': 'images/grok-icon.png'
+        // Add paths for any other default groups if needed
     };
-    const CUSTOM_PLACEHOLDER_URL = 'https://www.pngplay.com/wp-content/uploads/12/Pepe-Hands-PNG-Free-File-Download.png';
+    const CUSTOM_PLACEHOLDER_URL = 'images/placeholder-icon.png'; // Updated placeholder path
     const MODELS_STORAGE_KEY = 'tierListModelsState'; // Stores array of all model objects
     const LAYOUT_STORAGE_KEY = 'tierListLayoutState'; // Stores { tier: [id1, id2], ... }
 
