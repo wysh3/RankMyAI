@@ -1,4 +1,8 @@
 /* Global Styles & Theme */
+html {
+    scroll-behavior: smooth; /* Enable smooth scrolling */
+}
+
 body {
     background-color: #000; /* Pure black background */
     color: #fff; /* White text */
@@ -40,7 +44,6 @@ header p {
 
 .controls button {
     background-color: rgba(50, 50, 50, 0.7); /* Dark frosted glass */
-    backdrop-filter: blur(5px);
     color: #eee;
     border: 1px solid rgba(255, 255, 255, 0.15);
     padding: 8px 15px;
@@ -71,12 +74,10 @@ header p {
     justify-content: center;
     align-items: center;
     z-index: 1000;
-    backdrop-filter: blur(8px); /* Stronger blur for overlay */
 }
 
 .popup-content {
     background-color: rgba(30, 30, 30, 0.75); /* Dark frosted glass */
-    backdrop-filter: blur(10px);
     padding: 25px 30px;
     border-radius: 12px; /* More rounded */
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -207,7 +208,6 @@ header p {
 #unranked-container {
     flex-grow: 1;
     background-color: rgba(25, 25, 25, 0.65); /* Darker frosted glass base */
-    backdrop-filter: blur(10px); /* Stronger blur */
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 0 6px 6px 0; /* Match tier label */
     padding: 10px;
@@ -234,7 +234,6 @@ header p {
 /* Model Card Styling */
 .model-card {
     background-color: rgba(55, 55, 55, 0.75); /* Medium-dark frosted glass */
-    backdrop-filter: blur(8px);
     border: 1px solid rgba(255, 255, 255, 0.15);
     color: #eee; /* Light text */
     padding: 8px 12px;
@@ -344,12 +343,10 @@ header p {
     justify-content: center;
     align-items: center;
     z-index: 1000;
-    backdrop-filter: blur(8px); /* Consistent blur */
 }
 
 .modal-content {
     background-color: rgba(35, 35, 35, 0.8); /* Dark frosted glass */
-    backdrop-filter: blur(12px);
     padding: 30px;
     border-radius: 12px; /* Consistent rounded corners */
     border: 1px solid rgba(255, 255, 255, 0.15);
