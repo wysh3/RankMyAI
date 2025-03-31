@@ -1,4 +1,4 @@
-# ![Logo](image.png) AI Model Tier List Maker
+# ![Logo](image.png) RankMyAI
 
 A simple web application for creating and sharing tier lists of AI models. Drag and drop models between tiers (S, A, B, C, D, E, F) from an unranked pool.
 
