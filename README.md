@@ -14,7 +14,7 @@ A simple web application for creating and sharing tier lists of AI models. Drag 
 
 ## Inspiration
 
-I couldn't see the absurd tier lists in this video : "[Ranking every model based on my feelings](https://youtu.be/3yrAK2hMWw8?t=232)"
+I couldn't see the absurd tier list maker in this video : "[Ranking every model based on my feelings](https://youtu.be/3yrAK2hMWw8?t=232)"
 
 ## License
 
